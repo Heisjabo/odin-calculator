@@ -16,7 +16,7 @@
   });
 
   equal.addEventListener("click", function (e) {
-    calculate();
+    operate();
   });
 
   clear.addEventListener("click", function (e) {
@@ -38,14 +38,14 @@
     }
 
     if (value === "=") {
-      calculate();
+      operate();
     } else {
       expression += value;
       screen.value = expression;
     }
   }
 
-function calculate() {
+function operate() {
   try {
     let result;
     if (previousAnswer !== null) {
