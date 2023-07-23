@@ -3,6 +3,7 @@
   let buttons = document.querySelectorAll(".btn");
   let clear = document.querySelector(".btn-clear");
   let equal = document.querySelector(".btn-equal");
+  let backspace = document.querySelector(".btn-backspace");
 
   let expression = "";
   let previousAnswer = null;
@@ -20,6 +21,10 @@
 
   clear.addEventListener("click", function (e) {
     clearDisplay();
+  });
+
+  backspace.addEventListener("click", function (e) {
+    removeLastCharacter();
   });
 
   function appendToDisplay(value) {
@@ -96,4 +101,15 @@ function calculateExpression(expr) {
     previousAnswer = null;
     screen.value = "";
   }
+
+   function removeLastCharacter() {
+     if (expression.length > 0) {
+       expression = expression.slice(0, -1);
+       screen.value = expression;
+     } else if (previousAnswer !== null) {
+       previousAnswer = null;
+       screen.value = "";
+     }
+   }
+
 })();
