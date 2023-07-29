@@ -27,23 +27,36 @@
     removeLastCharacter();
   });
 
-  function appendToDisplay(value) {
-    if (screen.value === "Error") {
-      screen.value = "";
-    }
-
-    if (expression.endsWith("/") && value === "0") {
-      screen.value = "Cannot divide by 0";
-      return;
-    }
-
-    if (value === "=") {
-      operate();
-    } else {
-      expression += value;
-      screen.value = expression;
-    }
+  
+function appendToDisplay(value) {
+  if (screen.value === "Error") {
+    screen.value = "";
   }
+  if (expression.endsWith("/") && value === "0") {
+    screen.value = "Error: Cannot divide by zero!";
+    return;
+  }
+
+  if (value === "=") {
+    calculate();
+  } else if (value === ".") {
+    if (
+      expression === "" ||
+      expression.endsWith("+") ||
+      expression.endsWith("-") ||
+      expression.endsWith("*") ||
+      expression.endsWith("/")
+    ) {
+      expression += "0" + value;
+    } else if (!expression.endsWith(".") && countDecimals(expression) < 3) {
+      expression += value;
+    }
+    screen.value = expression;
+  } else {
+    expression += value;
+    screen.value = expression;
+  }
+}
 
 function operate() {
   try {
@@ -54,18 +67,32 @@ function operate() {
       result = calculateExpression(expression);
     }
 
-    result = Math.round((result + Number.EPSILON) * 10000) / 10000;
     screen.value = result;
     previousAnswer = result;
     expression = "";
   } catch (error) {
     screen.value = "Error";
+    console.log(error);
   }
 }
 
+
 function calculateExpression(expr) {
-  let numbers = expr.split(/[-+*/]/).map(Number);
-  let operators = expr.split(/\d/).filter((op) => op !== "");
+  expr = expr.replace(/^[-+*/]|[.](?=[-+*/])|[.](?=$)/g, "");
+
+  const tokens = expr.split(/([-+*/])/);
+
+  const numbers = [];
+  const operators = [];
+
+  for (let i = 0; i < tokens.length; i++) {
+    const token = tokens[i];
+    if (token === "+" || token === "-" || token === "*" || token === "/") {
+      operators.push(token);
+    } else {
+      numbers.push(parseFloat(token));
+    }
+  }
 
   let result = numbers[0];
   for (let i = 0; i < operators.length; i++) {
@@ -92,9 +119,14 @@ function calculateExpression(expr) {
         break;
     }
   }
+
+  if (!Number.isFinite(result)) {
+    throw new Error("Invalid calculation");
+  }
+  result = Math.round(result * 1000) / 1000;
+
   return result;
 }
-
 
   function clearDisplay() {
     expression = "";
@@ -111,5 +143,20 @@ function calculateExpression(expr) {
        screen.value = "";
      }
    }
+
+   function countDecimals(value) {
+  if (typeof value === "number") {
+    if (Math.floor(value) !== value) {
+      return value.toString().split(".")[1]?.length || 0;
+    }
+    return 0;
+  }
+  const decimalRegex = /\.\d*$/;
+  const decimalMatch = value.match(decimalRegex);
+  if (decimalMatch) {
+    return decimalMatch[0].length - 1;
+  }
+  return 0;
+}
 
 })();

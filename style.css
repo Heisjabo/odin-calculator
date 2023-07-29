@@ -50,6 +50,10 @@ button{
     justify-content: space-between;
     padding: 20px;
 }
+.btn:hover{
+    background-color: rgb(38, 10, 179);
+    color: white;
+}
 
 .btn-blue {
     background: darkblue;
